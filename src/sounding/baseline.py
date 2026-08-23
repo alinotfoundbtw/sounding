@@ -131,7 +131,7 @@ def sarif(results: list[tuple[str, str, list[Finding]]]) -> str:
                         "driver": {
                             "name": "sounding",
                             "version": __version__,
-                            "informationUri": "https://github.com/alinotfound/sounding",
+                            "informationUri": "https://github.com/alinotfoundbtw/sounding",
                             "rules": list(rules.values()),
                         }
                     },

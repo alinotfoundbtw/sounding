@@ -31,7 +31,7 @@ the number in the PR. "It passed my fixtures" is not validation.
 ## Setting up
 
 ```bash
-git clone https://github.com/alinotfound/sounding
+git clone https://github.com/alinotfoundbtw/sounding
 cd sounding
 python -m venv .venv && . .venv/bin/activate   # .venv\Scripts\activate on Windows
 pip install -e .

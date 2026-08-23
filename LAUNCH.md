@@ -26,7 +26,7 @@ Nothing here is optional. Each one is a reason someone bounces.
 ## Phase 2 — the repository
 
 ```bash
-gh repo create alinotfound/sounding --public --source=. --push \
+gh repo create alinotfoundbtw/sounding --public --source=. --push \
   --description "Audit MCP servers, Agent Skills, and prompts. Findings carry a reference, a fix, and a score that shows its formula."
 
 gh repo edit --add-topic mcp --add-topic model-context-protocol \

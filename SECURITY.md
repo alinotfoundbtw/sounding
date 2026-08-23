@@ -1,7 +1,7 @@
 # Security
 
 Report vulnerabilities privately via [GitHub Security
-Advisories](https://github.com/alinotfound/sounding/security/advisories/new) on
+Advisories](https://github.com/alinotfoundbtw/sounding/security/advisories/new) on
 this repository.
 
 Please do not open a public issue for a vulnerability report.

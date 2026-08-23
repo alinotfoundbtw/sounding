@@ -85,7 +85,7 @@ From a clone — which is also the only way to run it before the first release
 lands on PyPI:
 
 ```bash
-git clone https://github.com/alinotfound/sounding
+git clone https://github.com/alinotfoundbtw/sounding
 cd sounding
 pip install -e .
 ```

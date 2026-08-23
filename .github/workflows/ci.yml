@@ -14,6 +14,12 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        # bash on every runner: the `! cmd` negation steps below are bash syntax,
+        # and windows-latest would otherwise default `run:` to PowerShell, where
+        # `!` is not that operator and the job fails to parse.
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
