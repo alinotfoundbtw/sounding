@@ -218,10 +218,16 @@ INJECTION = [
 
 @rule("PRM005")
 def override_language(p: Prompt) -> list[Finding]:
+    # Reuse the skill adapter's defensive-context check rather than duplicate it:
+    # a prompt that quotes "ignore previous instructions" to warn about it, or an
+    # agent prompt telling the model to treat such input as data, is the careful
+    # author — and flagging them inverts the rule, exactly as it did for skills.
+    from .skill import _is_quoted_or_defensive
+
     out = []
     for pat in INJECTION:
         m = re.search(pat, p.text, re.I)
-        if m:
+        if m and not _is_quoted_or_defensive(p.text, m.start(), m.end()):
             out.append(
                 Finding(
                     rule="PRM005",
