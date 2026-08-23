@@ -25,9 +25,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m unittest discover -s tests -v
+      # Install first: several tests shell out to `python -m sounding.cli`
+      # (encoding checks, and check_versions.py re-running the pasted README
+      # blocks), so the package has to be importable before the suite runs.
       - name: install
         run: pip install -e .
+      - run: python -m unittest discover -s tests -v
       - name: versions agree everywhere
         run: python tools/check_versions.py
       - name: the tool must pass its own rules
