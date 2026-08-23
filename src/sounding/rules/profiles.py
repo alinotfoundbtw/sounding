@@ -91,7 +91,10 @@ IMAGE = Profile(
     detect=[
         r"\b(photo|photograph|render|illustration|painting|artwork|portrait|"
         r"wallpaper|concept art|3d|digital art|poster|logo|sticker)\b",
-        r"\b(midjourney|dall-?e|stable diffusion|flux|imagen|firefly|--ar|--v \d)\b",
+        # normalize() has already turned any hyphen into a space by the time a
+        # pattern runs, so "dall-e" is seen as "dall e" and "--ar 16:9" as
+        # "ar 16:9". Every token here is written against that normalized form.
+        r"\b(midjourney|dall ?e|stable diffusion|flux|imagen|firefly|ar \d+:\d+|v \d)\b",
         r"\b(8k|4k|hyperrealistic|photorealistic|ultra detailed|masterpiece)\b",
     ],
     note=(
@@ -109,7 +112,7 @@ IMAGE = Profile(
             vocabulary=[
                 r"\b(a|an|the)\s+\w+(\s+\w+){0,3}\s+(standing|sitting|holding|wearing|"
                 r"walking|running|looking|facing|lying|leaning)\b",
-                r"\b(portrait|close-?up|full body|headshot) of\b",
+                r"\b(portrait|close ?up|full body|headshot) of\b",
                 r"\b(man|woman|person|child|cat|dog|robot|building|landscape|car|"
                 r"creature|figure|character|animal|object|room|city|forest|mountain)\b",
             ],
@@ -172,12 +175,12 @@ IMAGE = Profile(
             why="Without framing the model defaults to a centred mid-shot, which is why unspecified prompts all look alike.",
             severity=Severity.MEDIUM,
             vocabulary=[
-                r"\b(close-?up|extreme close-?up|medium shot|wide shot|long shot|"
-                r"establishing shot|full body|headshot|macro|aerial|overhead|top-?down)\b",
+                r"\b(close ?up|extreme close ?up|medium shot|wide shot|long shot|"
+                r"establishing shot|full body|headshot|macro|aerial|overhead|top ?down)\b",
                 r"\b(composition|framing|framed|rule of thirds|centred|centered|symmetr\w+|"
-                r"off-?cent\w+|negative space|foreground|background|depth of field)\b",
+                r"off ?cent\w+|negative space|foreground|background|depth of field)\b",
                 r"\b(low angle|high angle|eye level|dutch angle|worm'?s eye|bird'?s eye)\b",
-                r"\b(portrait orientation|landscape orientation|--ar \d)\b",
+                r"\b(portrait orientation|landscape orientation|ar \d)\b",
             ],
             question="How is it framed?",
             options=_opts({
@@ -251,7 +254,7 @@ IMAGE = Profile(
             why="Ratio changes composition, not just cropping. Deciding it last means composing for the wrong frame.",
             severity=Severity.LOW,
             optional=True,
-            vocabulary=[r"--ar\s*\d+:\d+", r"\b\d{1,2}:\d{1,2}\b",
+            vocabulary=[r"\bar\s*\d+:\d+", r"\b\d{1,2}:\d{1,2}\b",
                         r"\b(square|portrait orientation|landscape orientation|vertical|horizontal|widescreen)\b"],
             question="What aspect ratio?",
             options=_opts({
@@ -267,7 +270,7 @@ IMAGE = Profile(
             why="Stating what must not appear is often the fastest fix, and generic prompts never do it.",
             severity=Severity.LOW,
             optional=True,
-            vocabulary=[r"\b(no |without |avoid |exclude |negative prompt|--no )\b"],
+            vocabulary=[r"\b(no |without |avoid |exclude |negative prompt)\b"],
             question="Anything that must not appear?",
             options=_opts({
                 "no text or watermarks": "no text, no watermarks, no logos, no signatures",

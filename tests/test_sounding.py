@@ -1124,6 +1124,53 @@ class TestImageProfile(unittest.TestCase):
         dim = next(d for d in profiles_mod.IMAGE.dimensions if d.id == "lighting")
         self.assertTrue(dim.present("shot at golden-hour"))
 
+    def test_no_profile_pattern_expects_a_hyphen_normalize_would_strip(self) -> None:
+        """normalize() replaces every hyphen with a space before a pattern runs,
+        so a hyphen the pattern still expects — outside a [- ] class, which
+        matches the resulting space — can never match. Four dead patterns hid
+        here once (close-?up, top-?down, off-?cent, dall-?e); this asserts none
+        come back."""
+        offenders = []
+        for prof in profiles_mod.PROFILES.values():
+            pats = [("detect", p) for p in prof.detect]
+            for d in prof.dimensions:
+                pats += [(d.id, p) for p in d.vocabulary]
+            for where, pat in pats:
+                # drop [...] classes: a hyphen inside one matches the space.
+                if "-" in re.sub(r"\[[^\]]*\]", "", pat):
+                    offenders.append(f"{prof.id}:{where} -> {pat}")
+        self.assertEqual(offenders, [], f"hyphen normalize would strip: {offenders}")
+
+    def test_hyphen_and_space_forms_are_both_detected(self) -> None:
+        """The bug fired on careful authors: a stated dimension read as absent.
+        Both spellings must be seen as the same words."""
+        cases = [
+            ("composition", "extreme close-up", "extreme close up"),
+            ("composition", "a top-down view", "a top down view"),
+            ("composition", "shot slightly off-centre", "shot slightly off centre"),
+        ]
+        for dim_id, hyphen, spaced in cases:
+            dim = next(d for d in profiles_mod.IMAGE.dimensions if d.id == dim_id)
+            with self.subTest(dim=dim_id):
+                self.assertTrue(dim.present(hyphen), f"missed hyphen form: {hyphen!r}")
+                self.assertTrue(dim.present(spaced), f"missed space form: {spaced!r}")
+
+    def test_hyphenated_generator_names_detect_the_image_profile(self) -> None:
+        for text in ["a portrait made with dall-e 3",
+                     "cyberpunk alley, neon, --ar 16:9 --v 6"]:
+            with self.subTest(text=text[:24]):
+                p = profiles_mod.detect(text)
+                self.assertIsNotNone(p, f"no profile detected for {text!r}")
+                self.assertEqual(p.id, "image")  # type: ignore[union-attr]
+
+    def test_a_prompt_that_states_framing_is_not_flagged_for_it(self) -> None:
+        """End to end: the exact false positive from the field report."""
+        text = ("An oil painting of a beekeeper inspecting a frame, golden hour "
+                "light, extreme close-up, top-down view, muted earth tones, "
+                "quiet reverent mood.")
+        found = self._codes(text)
+        self.assertNotIn("PRF:image:composition", found)
+
     def test_generic_rules_that_do_not_apply_are_suppressed(self) -> None:
         """An image prompt has no output contract and no failure mode."""
         found = self._codes(THIN_IMAGE)

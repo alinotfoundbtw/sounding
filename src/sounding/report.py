@@ -90,6 +90,15 @@ def terminal(report: Report, color: bool | None = None) -> str:
         f"  {_c('found', 'drift', color)}  "
         f"{counts['high']} high · {counts['medium']} medium · {counts['low']} low"
     )
+    if not report.findings:
+        # A clean score is the absence of matched patterns, not the presence of
+        # safety. Saying so on the one screen most likely to be over-trusted is
+        # the same honesty the scope section owes the reader.
+        lines.append(
+            f"  {_c('note', 'drift', color)}   "
+            "no findings means well-formed, not safe — static checks on a declared "
+            "contract, not intent or runtime behaviour."
+        )
 
     questions = report.questions()
     if questions:
@@ -132,6 +141,11 @@ def markdown(report: Report) -> str:
         out.append("## NO CONTACTS")
         out.append("")
         out.append("Nothing flagged against the current rule set.")
+        out.append("")
+        out.append(
+            "No findings means well-formed, not safe — this is static analysis of a "
+            "declared contract, not a check of intent or runtime behaviour."
+        )
     else:
         for sev in (Severity.HIGH, Severity.MEDIUM, Severity.LOW):
             group = [f for f in report.findings if f.severity is sev]
