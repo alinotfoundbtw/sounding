@@ -1,0 +1,11 @@
+{
+  "note": "Real user phrasing, deliberately not copied from any description. A case lifted from the description only proves the description matches itself.",
+  "cases": [
+    { "task": "walk me through how database indexes actually work", "expect": "block-scalar-skill" },
+    { "task": "quiz me on the difference between TCP and UDP", "expect": "block-scalar-skill" },
+    { "task": "turn this spreadsheet dump into jsonl", "expect": "clean-skill" },
+    { "task": "I have a tab separated file that needs to be comma separated", "expect": "clean-skill" },
+    { "task": "here is my chatgpt history export, bring it in", "expect": "defensive-skill" },
+    { "task": "book me a flight to Berlin", "expect": null }
+  ]
+}

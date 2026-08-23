@@ -1,0 +1,50 @@
+{
+  "name": "notes",
+  "version": "1.3.0",
+  "transport": "http",
+  "url": "https://notes.example.com/mcp",
+  "env": {
+    "NOTES_TOKEN": "${NOTES_TOKEN}"
+  },
+  "tools": [
+    {
+      "name": "notes_search",
+      "description": "Search the user's notes by full-text query and return matching note IDs, titles, and note bodies. Use this to locate and read a note in one call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "pattern": "^[\\w\\s-]{1,120}$"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true
+      }
+    },
+    {
+      "name": "notes_archive",
+      "description": "Move a note to the archive. The note remains retrievable and can be restored with notes_restore. Use when the user is finished with a note but may want it later.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^note_[a-z0-9]{8}$"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false
+      }
+    }
+  ]
+}

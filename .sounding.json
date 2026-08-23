@@ -1,0 +1,6 @@
+{
+  "promptGlobs": ["examples/prompts/*.txt"],
+  "exclude": [],
+  "disable": [],
+  "severity": {}
+}

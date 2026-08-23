@@ -1,0 +1,56 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Windows is not optional here: two tests hardcoded /tmp and failed for
+        # every Windows user while an ubuntu-only matrix stayed green.
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m unittest discover -s tests -v
+      - name: install
+        run: pip install -e .
+      - name: versions agree everywhere
+        run: python tools/check_versions.py
+      - name: the tool must pass its own rules
+        run: sounding selfaudit
+      - name: malformed input must not crash it
+        run: python tests/fuzz_manual.py
+      - name: clean fixtures must stay clean
+        shell: bash
+        run: |
+          sounding audit examples/clean-server.json --min-score 100
+          sounding audit examples/skills/clean-skill --min-score 100
+          sounding audit examples/prompts/clean.txt --fail-on any
+      - name: messy fixtures must still be caught
+        shell: bash
+        run: |
+          ! sounding audit examples/messy-server.json --fail-on high
+          ! sounding audit examples/skills/messy-skill --fail-on high
+      # The example skills deliberately do not collide, so this asserts the
+      # quiet direction: eval runs over a skills directory and reports nothing.
+      # Collision detection itself is tested in both directions in
+      # tests/test_sounding.py, which is where that belongs — this step asserted
+      # `! sounding eval`, which could only ever have passed if the fixtures
+      # were broken.
+      - name: eval runs clean on non-colliding skills
+        shell: bash
+        run: |
+          sounding eval examples/skills
+      - name: project scan produces valid SARIF
+        shell: bash
+        run: |
+          sounding audit . --format sarif > sounding.sarif
+          python -c "import json,sys; d=json.load(open('sounding.sarif')); assert d['version']=='2.1.0'; assert d['runs'][0]['results']"

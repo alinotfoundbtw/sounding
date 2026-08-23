@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sounding"
+version = "0.9.4"
+description = "Governance for agent instructions: audit, score, and pin MCP tool contracts."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "alinotfound" }]
+keywords = ["mcp", "model-context-protocol", "ai-agents", "security", "linter"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Security",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/alinotfound/sounding"
+Issues = "https://github.com/alinotfound/sounding/issues"
+
+[project.scripts]
+sounding = "sounding.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sounding"]

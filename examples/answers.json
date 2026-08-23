@@ -1,0 +1,6 @@
+{
+  "purpose:ping": "calls an external service",
+  "constrain:read_file.path": "any value within a sandboxed root",
+  "constrain:delete_file.path": "any value within a sandboxed root",
+  "constrain:run.cmd": "a fixed set (enum)"
+}
