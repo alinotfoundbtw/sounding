@@ -386,6 +386,10 @@ Every rule and fixture in this repo was written by the same person, so of course
 they agreed. The real test was running it against **35 professionally-written
 skills by other authors**.
 
+The long version, including the rule that flagged security guidance because it
+quoted an attack string, is in
+[WRITEUP.md](https://github.com/alinotfoundbtw/sounding/blob/main/WRITEUP.md).
+
 The first run was damning: **39 findings, a false-positive rate near 46%**, and
 one skill scored 13/100. Four distinct defects:
 
