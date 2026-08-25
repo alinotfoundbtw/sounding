@@ -75,8 +75,9 @@ now, and CI guards them.
 One test matters more than the others. When you fix a rule that fires too often,
 the tempting overcorrection is to tune it until it fires on nothing — which is
 the same failure wearing the opposite mask. So there is a test asserting the
-trigger rule **still fires** on a genuinely vague description ("a comprehensive
-and powerful utility for advanced users"). A guard that can no longer fail has
+trigger rule **still fires** on a genuinely vague description ("A comprehensive
+and powerful utility library that provides many capabilities for advanced users
+of the platform."). A guard that can no longer fail has
 stopped being a guard.
 
 After the fixes: **7 findings, 28 of 35 clean, mean score 99.** The seven that
@@ -118,8 +119,10 @@ thing that does.
 
 ---
 
-`sounding` is MIT-licensed. The corpus method above is a command in the repo:
-point it at a directory of skills and it reports the false-positive rate against
-work the author did not write.
+`sounding` is MIT-licensed. The corpus method above is `sounding audit` pointed
+at a directory of skills someone else wrote: it scores each one and names the
+rules that fired. What it cannot do is the part that mattered — deciding whether
+a finding is a defect in their skill or in my rule. No tool does that for you,
+which is the whole reason the first run took reading all 39 by hand.
 
 <sub>`·)))` alinotfound</sub>
