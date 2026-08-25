@@ -1722,3 +1722,105 @@ class TestPinRefusesNonMcp(unittest.TestCase):
         code, _ = self._cli("pin", str(EXAMPLES / "clean-server.json"), "--out", str(lock))
         self.assertEqual(code, 0)
         self.assertTrue(lock.exists())
+
+
+from sounding import engine  # noqa: E402
+
+
+class TestPlaygroundAgreesWithTheCLI(unittest.TestCase):
+    """The playground runs the same wheel, so it must call the same API.
+
+    It shipped once declared outside its <script> tag and nobody noticed,
+    because nothing here ever opened it. A browser is still needed to prove
+    Pyodide boots — but the two failures that do not need a browser are a
+    symbol the page calls that the package no longer exports, and a built-in
+    sample that no longer parses. Both are caught here.
+    """
+
+    PLAYGROUND = Path(__file__).resolve().parents[1] / "playground/index.html"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.html = cls.PLAYGROUND.read_text(encoding="utf-8")
+        mods = re.findall(r'<script type="module">(.*?)</script>', cls.html, re.S)
+        assert mods, "no module script in the playground"
+        cls.module = mods[0]
+
+    def _samples(self) -> dict[str, str]:
+        block = re.search(r"const SAMPLES = \{(.*?)\n\};", self.module, re.S)
+        self.assertIsNotNone(block, "playground has no SAMPLES block")
+        out = {}
+        for m in re.finditer(r"\n  (\w+): `(.*?)`", block.group(1), re.S):
+            out[m.group(1)] = m.group(2)
+        return out
+
+    def test_every_sounding_symbol_the_page_calls_exists(self) -> None:
+        import importlib
+
+        py = "\n".join(
+            m.group(1)
+            for m in re.finditer(r"runPython(?:Async)?\(\s*`(.*?)`", self.module, re.S)
+        )
+        self.assertIn("sounding", py, "the page no longer imports sounding")
+
+        # from X import a, b  /  import X
+        missing = []
+        for mod_name, names in re.findall(r"^\s*from (sounding[\w.]*) import (.+)$", py, re.M):
+            module = importlib.import_module(mod_name)
+            for raw in names.split(","):
+                attr = raw.strip().split(" as ")[0].strip()
+                if attr and not hasattr(module, attr):
+                    missing.append(f"{mod_name}.{attr}")
+        # attribute calls like patch_mod.apply_frontmatter(...)
+        alias = dict(re.findall(r"^\s*from sounding import (\w+) as (\w+)$", py, re.M))
+        alias.update({v: k for k, v in
+                      re.findall(r"^\s*from sounding import (\w+) as (\w+)$", py, re.M)})
+        for obj, attr in re.findall(r"\b(\w+_mod|mcp|skill_rules|prompt_rules)\.(\w+)\(", py):
+            real = {"mcp": "sounding.rules.mcp", "skill_rules": "sounding.rules.skill",
+                    "prompt_rules": "sounding.rules.prompt", "fix_mod": "sounding.fix",
+                    "patch_mod": "sounding.patch"}.get(obj)
+            if not real:
+                continue
+            if not hasattr(importlib.import_module(real), attr):
+                missing.append(f"{real}.{attr}")
+        self.assertEqual(sorted(set(missing)), [], f"playground calls symbols the wheel lacks: {missing}")
+
+    def test_the_three_built_in_samples_still_audit(self) -> None:
+        samples = self._samples()
+        self.assertEqual(sorted(samples), ["mcp", "prompt", "skill"])
+        for kind, src in samples.items():
+            with self.subTest(kind=kind):
+                sandbox = _sandbox(f"playground-{kind}")
+                if kind == "mcp":
+                    p = sandbox / "server.json"
+                    p.write_text(src, encoding="utf-8")
+                    report = engine.report_for(p, "mcp")
+                elif kind == "skill":
+                    d = sandbox / "sample-skill"
+                    d.mkdir(exist_ok=True)
+                    (d / "SKILL.md").write_text(src, encoding="utf-8")
+                    report = engine.report_for(d, "skill")
+                else:
+                    p = sandbox / "prompt.txt"
+                    p.write_text(src, encoding="utf-8")
+                    report = engine.report_for(p, "prompt")
+                # A sample that produces nothing teaches nothing, and "at least
+                # one finding" is too low a bar — almost any text trips a rule.
+                # These are deliberately flawed demos, so hold them to that:
+                # several findings, a visibly bad score, and at least one open
+                # question, since the page renders questions too.
+                self.assertGreaterEqual(
+                    len(report.findings), 3,
+                    f"the {kind} sample stopped demonstrating anything",
+                )
+                self.assertLessEqual(
+                    report.score, 50,
+                    f"the {kind} sample now scores {report.score}; it is meant to look bad",
+                )
+                self.assertTrue(
+                    report.questions(),
+                    f"the {kind} sample no longer raises a question to answer",
+                )
+                # The page serialises both; a change to either shape breaks it.
+                report.to_dict()
+                [q.to_dict() for q in report.questions()]
