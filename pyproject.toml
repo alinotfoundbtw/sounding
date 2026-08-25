@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "sounding"
 version = "0.9.4"
-description = "Governance for agent instructions: audit, score, and pin MCP tool contracts."
+description = "Governance for agent instructions: audit, score, and pin MCP servers, Agent Skills, and prompts. Deterministic; findings carry a reference and a fix."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

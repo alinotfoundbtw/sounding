@@ -174,7 +174,7 @@ sounding audit . --baseline         # from now on, only what is new
 Baselined artifacts show as `13 baselined`, never as `clean`. They are a
 backlog, not a pass, and the output refuses to pretend otherwise.
 
-Full options in [CONFIG.md](CONFIG.md).
+Full options in [CONFIG.md](https://github.com/alinotfoundbtw/sounding/blob/main/CONFIG.md).
 
 Exit codes: `0` clean · `1` medium findings, or a command that declined to run ·
 `2` high findings, or drift in a tool contract. A refusal never borrows `2`, so
@@ -275,7 +275,7 @@ add the dimensions that actually decide quality for one kind of prompt: an image
 prompt is checked for subject, medium, lighting, composition, colour and mood; an
 extraction prompt for its schema and absent-value rule; an agent prompt for its
 tool boundary, stopping condition, and untrusted-content handling. See
-[PROFILES.md](PROFILES.md).
+[PROFILES.md](https://github.com/alinotfoundbtw/sounding/blob/main/PROFILES.md).
 
 Prompt rules are deterministic only. Whether a prompt *works* can be found only
 by running it, and this tool runs nothing — so it checks the structural class of
@@ -325,7 +325,7 @@ matches itself.
 
 ## Playground
 
-[playground/](playground/) is a single page that runs these rules in the browser
+[playground/](https://github.com/alinotfoundbtw/sounding/tree/main/playground) is a single page that runs these rules in the browser
 via Pyodide — the same wheel the CLI installs, so the web version cannot
 silently disagree with CI.
 
